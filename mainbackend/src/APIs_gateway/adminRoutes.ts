@@ -6,6 +6,6 @@ adminRouter.post("/balances/inr",(req:Request,res:Response)=>{
     
 })
 
-adminRouter.post("/balance/stock",(req:Request,res:Response)=>{ //
+adminRouter.post("/balance/stock",(req:Request,res:Response)=>{ 
     
 })

@@ -1,8 +1,7 @@
 //making another redis client - how it will behave
 import { redisClient } from "./redisClients";
-const INR_BALANCES: any = {};
+const INR_BALANCES= {}; //memory variable 
 const stock_balances = {};
-
 export async function main() {
     while (true) {
         try {
@@ -16,8 +15,8 @@ export async function main() {
                     uniqueId : data['uniqueId'],
                     message: 'use registered successfully'
                 }
-                await redisClient.lPush('responses:register_user', JSON.stringify(backeResponse));
-
+                await redisClient.lPush(`responses:register_user_${backeResponse.uniqueId}`, JSON.stringify(backeResponse)); //will process definitely even if the user leaves the screen after request
+                console.log(`processed order with id ${backeResponse.uniqueId}`)
             }
         } catch (error) {
             console.error('Error occurred:', error);

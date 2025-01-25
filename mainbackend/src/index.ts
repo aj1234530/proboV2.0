@@ -13,5 +13,5 @@ app.use("/api/v1/user",router);
 
 app.use("/api/v1/admin",adminRouter);
 
-app.listen(3000,()=>console.log('server is running on 3000'))
+app.listen(3001,()=>console.log('server is running on 3001'))
 
