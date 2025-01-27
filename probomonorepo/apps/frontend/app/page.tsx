@@ -1,10 +1,17 @@
 import { Button } from "@repo/ui/button";
 import { PrismaClient } from "@repo/db/client";
-export default function Page() {
+import Navbar from "../components/Navbar";
+import { getServerSession } from "next-auth";
+import { NEXT_AUTH_CONFIG } from "./lib/auth";
+export default async function Page() {
+  //we need to pass the config to access id of token on server componets
+  const session = await getServerSession(NEXT_AUTH_CONFIG);
+  //session is object with details of user returned after the login
+
   return (
     <div>
-      <div className="bg-red-500">Hello</div>
-      <Button appName="docs">Open alert</Button>
+      <div>{JSON.stringify(session)}</div>
+      <Navbar />
     </div>
   );
 }

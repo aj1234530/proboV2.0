@@ -11,8 +11,58 @@ interface DataRecievedFromApiServer {
   email: string;
   uniqu: string;
   quantity: String;
-  uniqueRequestId:string
+  uniqueRequestId: string;
 }
+//in memory var means it on baacked server ram => (don't dare to  think on browser)
+//how the admin will new game
+const STOCK_BALANCES = {
+  user1: {
+    BTC_USDT_10_Oct_2024_9_30: {
+      yes: {
+        quantity: 1,
+        locked: 0,
+      },
+    },
+  },
+  user2: {
+    BTC_USDT_10_Oct_2024_9_30: {
+      no: {
+        quantity: 3,
+        locked: 4,
+      },
+    },
+  },
+};
+const ORDERBOOK = {
+  BTC_USDT_10_Oct_2024_9_30: {
+    yes: {
+      "9.5": {
+        total: 12,
+        orders: {
+          user1: 2,
+          user2: 10,
+        },
+      },
+      "8.5": {
+        total: 12,
+        orders: {
+          user1: 3,
+          user2: 3,
+          user3: 6,
+        },
+      },
+    },
+    no: {},
+  },
+  BTC_US2DT_10_Oct_2024_9_30:{
+    yes:{
+
+    },
+    no:{
+
+    }
+  }
+};
 
 const processQueue = async () => {
   while (true) {
@@ -24,8 +74,9 @@ const processQueue = async () => {
     );
     switch (dataRecieved.taskType) {
       case "signup":
-        console.log()
+        console.log();
         handleUserSignup(dataRecieved);
+      case "buy":
     }
   }
 };
@@ -35,7 +86,8 @@ processQueue();
 //prettier-ignore
 const handleUserSignup = async (data: DataRecievedFromApiServer) => {
   try {
-    if(await prisma.user.findFirst({where:{OR:[{email:data.email,username:data.username}]}})){
+    if(await prisma.user.findFirst({where:{email:data.email,}})){
+
       pubSubRedisClient.publish(`signupResponse${data.uniqueRequestId}`,JSON.stringify({statusCode:'400',message:"User Already Exists"}))
       return; //exit this fxn
     }
@@ -46,16 +98,14 @@ const handleUserSignup = async (data: DataRecievedFromApiServer) => {
         password: await bcrypt.hash(data.password, 10),
       },
     });
-
-    pubSubRedisClient.publish(`signupResponse${data.uniqueRequestId}`,JSON.stringify({statusCode:'200',message:"Signup Successful"}))
-
     const token = await jwt.sign({ id: user.id }, JWT_SECRET, {
       expiresIn: "72h",
     });
-    //if no error in user crn
-    pubSubRedisClient.publish("signupResponse", JSON.stringify({}));
+    pubSubRedisClient.publish(`signupResponse${data.uniqueRequestId}`,JSON.stringify({statusCode:'200',message:"Signup Successful",token:token}))
+
   } catch (error) {
-    pubSubRedisClient.publish(`signupResponse${data.uniqueRequestId}`,JSON.stringify({statusCode:'500',message:"Internal Server Error"}))
+    console.log(error)
+    pubSubRedisClient.publish(`signupResponse${data.uniqueRequestId}`,JSON.stringify({statusCode:'500',message:"Internal redis Server Error"}))
 
   }
 };

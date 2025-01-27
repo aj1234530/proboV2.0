@@ -28,3 +28,7 @@
 3. type TaskType = "signup" | "buy" | "sell"; **instead**   interface TaskType {
   taskType: "signup" | "buy" | "sell";
 }
+4. do it in one line - **common sense**
+   1.  const response = await waitForMessage(`signupResponse${uniqueRequestId}`);
+    const receivedResponse = JSON.parse(response); 
+      1. #and -  const response = JSON.parse( await waitForMessage(`signupResponse${uniqueRequestId}`));
