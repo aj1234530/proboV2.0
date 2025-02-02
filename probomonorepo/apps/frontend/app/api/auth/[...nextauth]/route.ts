@@ -8,7 +8,6 @@
 // }
 import NextAuth from "next-auth";
 import { NEXT_AUTH_CONFIG } from "../../../lib/auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 const handler = NextAuth(NEXT_AUTH_CONFIG);
 export { handler as GET, handler as POST };
 

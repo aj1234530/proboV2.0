@@ -12,6 +12,16 @@ export default async function Page() {
     <div>
       <div>{JSON.stringify(session)}</div>
       <Navbar />
+      <div>
+        <Button
+          className="bg-red-500"
+          appName="xyz app"
+          children="hello"
+        ></Button>
+        <div>Indias Leading</div>
+        <div>Online Skill Gaming Platform</div>
+        <div>Sports, Entertainment, Economy or Finance.</div>
+      </div>
     </div>
   );
 }

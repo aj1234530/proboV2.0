@@ -19,6 +19,7 @@ model User {
   email               String   @unique
   password            String
   balance             Int      @default(0)
+  // locked              Int      @default(0)
   withdrawableBalance Int?     @default(0)
   eventsParticipated  Events[] //a user can play many events
 }

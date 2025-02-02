@@ -5,12 +5,14 @@ import { useEffect } from "react";
 
 export default function Navbar() {
   const session = useSession();
-  // console.log(1, session.data, 2, session.status, 3, session.update);
+  if (session.status == "unauthenticated") {
+  }
+  console.log(1, session.data, 2, session.status, 3, session.update);
   //session is object with details of user returned after the login
   useEffect(() => {
     const fetchData = async () => {
       const response: any = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}api/v1/user/signin`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/signin`,
         {
           method: "POST",
           //because of not specify content type in headesr i was stuck here
@@ -24,7 +26,7 @@ export default function Navbar() {
         }
       );
       const responseJson = await response.json();
-      console.log(response, 2, response.ok, 3, responseJson.userId);
+      // console.log(response, 2, response.ok, 3, responseJson.userId);
     };
     fetchData();
   }, []);

@@ -3,18 +3,19 @@
 import { ReactNode } from "react";
 
 interface ButtonProps {
-  children: ReactNode;
+  children: ReactNode;//ReactNode is a type in ReactJS that can represent a React element, a string, a number, or a boolean
   className?: string;
   appName: string;
 }
 
-export const Button = ({ children, className, appName }: ButtonProps) => {
+export const Button = ({ className, appName, children }: ButtonProps) => {
   return (
     <button
-      className="bg-red-500"
+      className={className}
       onClick={() => alert(`Hello from your ${appName} app!`)}
     >
       {children}
+      {/* what can be chidren here */}
     </button>
   );
 };

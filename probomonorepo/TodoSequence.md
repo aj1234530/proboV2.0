@@ -4,3 +4,8 @@
 [] - user can sell
 [] - get put the user in memory
 [] - 
+
+
+
+//left things
+[ ] -  make amout to paise

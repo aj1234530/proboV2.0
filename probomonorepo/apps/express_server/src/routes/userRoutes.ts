@@ -2,18 +2,59 @@ import express, { json, Request, Response, Router } from "express";
 import { redisClient } from "../services/redisClient.js";
 import { pubSubRedisClient } from "../services/redisClient.js";
 import { PrismaClient } from "@repo/db/client";
+import { authCheck } from "../middlewares/authCheck.js";
 import bcrypt from "bcrypt";
+const probotaskqueue = "probotaskqueue";
 const prisma = new PrismaClient();
 export const userRouter: Router = express.Router();
-interface SignupWorkerResponse {
+interface WorkerResponse_Signup {
   statusCode: string;
   message: string;
   token: string;
 }
-userRouter.post("/recharge", (req: Request, res: Response) => {
+interface WorkerResponse_Recharge {
+  statusCode: string;
+  message: String;
+}
+interface RedisUserBalance {
+  balance: number;
+  locked: number;
+}
+userRouter.post("/recharge", authCheck, async (req: Request, res: Response) => {
+  const { balanceToAdd } = req.body;
+  const userId = req.userId;
+  const uniqueRequestId = Date.now().toString(); //for comm
+  console.log(uniqueRequestId, typeof uniqueRequestId);
+  const subChannel = `recharge${uniqueRequestId}`;
+  //we should do it by the worker
   try {
-  } catch (error) {}
+    await redisClient.lPush(
+      "probotaskqueue",
+      JSON.stringify({
+        uniqueRequestId,
+        userId,
+        taskType: "recharge",
+        balanceToAdd,
+      })
+    );
+    //if promise rejecte caught by the catch
+    console.log("code is here 1");
+    const responseOnChannel: WorkerResponse_Recharge = JSON.parse(
+      await waitForMessageOnChannel(subChannel)
+    );
+    console.log("code is here 2");
+
+    if (responseOnChannel.statusCode == "200") {
+      res.status(200).json({ message: "Balance Added" });
+    } else {
+      throw new Error();
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
+
 userRouter.post("/withdraw", (req: Request, res: Response) => {});
 
 userRouter.post("/signup", async (req: Request, res: Response) => {
@@ -30,9 +71,9 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
         taskType: "signup",
       })
     );
-    //if promise returned by waitForMessage is rejected then it goes to catch block
-    const response: SignupWorkerResponse = JSON.parse(
-      await waitForMessage(`signupResponse${uniqueRequestId}`)
+    //if promise returned by waitForMessageOnChannel is rejected then it goes to catch block
+    const response: WorkerResponse_Signup = JSON.parse(
+      await waitForMessageOnChannel(`signupResponse${uniqueRequestId}`)
     );
     switch (response.statusCode) {
       case "200":
@@ -53,9 +94,47 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
     res.status(500).json({ message: "internal error", error });
   }
 });
-userRouter.post("/buy", (req: Request, res: Response) => {
-  console.log("buy request");
-  res.send("buy request");
+//prettier-ignore
+userRouter.post("/buy", authCheck,async(req: Request, res: Response) => {
+  //addvalidation here
+  const {eventName,bidType,bidQuantity,price} = req.body;
+    //expecting balance from frontend in paise
+    const userId = req.userId;
+    const uniqueRequestId = Date.now().toString();
+    
+    try {
+      //in frontend also if user has not suffice , button will be disabled
+      const balance = await redisClient.hGet('INR_BALANCES',userId);
+      //if the user is able the trade means , his balance has been update in redis memory - as /trade/..on any route balance will be loaded
+      if(!balance ){
+        res.status(400).json({message:"Can't get the balance info"})
+        return
+      }
+      console.log('code is here 1',balance)
+
+      const parsedBalance:RedisUserBalance = JSON.parse(balance);
+      console.log('code is here 2',parsedBalance.balance)
+      if(parsedBalance.balance  < price * bidQuantity){
+      console.log('code is here 3')
+        res.status(400).json({message:"Insuffice Balance"})
+        return
+      }
+      if( (price % 50 !==0 ||  50 > price || price >= 1000) || bidQuantity <= 0 ){
+        console.log(price % 50 !==0,50 > price,price >= 1000)
+        console.log(price,)
+        console.log('code is here 4, invalid price config')
+        //returning a generic response because , user won't  see it, it is for some who hit our api directly
+        res.status(400).json({message:"invalid configurations"})
+        return
+      }
+      await redisClient.lPush(probotaskqueue,JSON.stringify({taskType:'buy',userId,uniqueRequestId,eventName,bidQuantity,bidType,price}));
+      //we have to submit bid only , nothing else , all the validation will be @ worker , as user has select option(for event,price) we do need validation here - we will prevent at worker if someone does by intercepting
+      //we will block the buy button on frontend if less balance
+      res.status(200).json({message:"Bid Submitted"})
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message:"Internal Server Error"})
+    } 
 });
 userRouter.post("/signin", async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -84,12 +163,61 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+//prettier-ignore
+userRouter.post( "/addusertotrade",authCheck,async (req: Request, res: Response) => {
+    const userId = req.userId;
+    try {
+      //only add if ther is not in memory
+      if( await redisClient.hGet('INR_BALANCES',userId)){
+        console.log("code is here 1") //log
+        res.status(200).json({message:"alrady user is there in memory"})
+        return;
+      }
+      console.log("code is here 2") //log
+      const user = await prisma.user.findFirst({where:{id:userId}})
+      const data = JSON.stringify({balance:user?.balance,locked:0})
+      await redisClient.hSet('INR_BALANCES',userId,data);
+      res.status(200).json({message:"User and balance added to the in memory"})
 
-userRouter.post("/sell", (req: Request, res: Response) => {});
+    } catch (error) {
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
+userRouter.post("/exit", authCheck, async (req: Request, res: Response) => {
+  //for selling 1. should have stock of the event,
+  //sale parice - data sanity,
+  //add to order book simply nothing else and lock it
+  const { eventName, bidType, bidQuantity, price } = req.body;
+  if (!eventName || !bidType || !bidQuantity || !price) {
+    res.status(500).json({ message: "all field manadaotry" });
+    return;
+  }
+  const userId = req.userId;
+  try {
+    await redisClient.lPush(
+      probotaskqueue,
+      JSON.stringify({
+        eventName,
+        bidType,
+        bidQuantity,
+        price,
+        userId,
+        taskType: "exit",
+      })
+    );
+    res.status(200).json({ message: "Exit Order Placed" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 //write a fxn that return a promise which resolves on the message or timeout after 30/specified sec
 //why this fxn is asycn? can't a sync return promise
-function waitForMessage(channel: string): Promise<string> {
+
+export function waitForMessageOnChannel(channel: string): Promise<string> {
   return new Promise((resolve, reject) => {
     //when the the channel receives the message the , cf executes and resolves
     //if not resolved under delay gives, promise is rejected

@@ -17,7 +17,7 @@ export const NEXT_AUTH_CONFIG = {
       async authorize(creadentials: any) {
         try {
           const response: any = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}api/v1/user/signin`,
+            `${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/signin`,
             {
               method: "POST",
               //because of not specify content type in headesr i was stuck here
