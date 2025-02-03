@@ -149,7 +149,9 @@ const handleUserSignup = async (data: DataRecievedFromApiServer) => {
     const token = await jwt.sign({ id: user.id }, JWT_SECRET, {
       expiresIn: "72h",
     });
-
+    //insert the user to the inr balance,if left side is right
+    INR_BALANCES[user.id] = INR_BALANCES[user.id] || { balance: 10, locked: 0 };
+    console.log(INR_BALANCES);
     pubSubRedisClient.publish(
       `signupResponse${data.uniqueRequestId}`,
       JSON.stringify({
@@ -192,7 +194,7 @@ const handleRecharge = async (data: DataRecievedFromApiServer) => {
     );
   }
 };
-//this handler updates balance to redisx
+//this handler updates balance to redis
 const handleRecharge2 = async (data: DataRecievedFromApiServer) => {
   console.log("code is here 3:inside recharge");
   try {
@@ -472,7 +474,7 @@ function mactchOrder(
         console.log(
           "ls 1.2 case, seller id can;t be found in order entry, but letting the order fullfill"
         );
-        // INR_BALANCES[sellerId]!.balance += price * remainingQuantity; //if the seller id is not there let the balance 
+        // INR_BALANCES[sellerId]!.balance += price * remainingQuantity; //if the seller id is not there let the balance
       }
       //add the balance to buyer and full fill whose pending order was matched
 

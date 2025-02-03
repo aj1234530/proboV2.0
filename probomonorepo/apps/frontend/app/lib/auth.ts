@@ -37,10 +37,11 @@ export const NEXT_AUTH_CONFIG = {
           }
           // console.log("response ok");
           const responseJson = await response.json();
-
+          console.log(responseJson, "log responseJson");
           return {
-            id: responseJson.userId,
+            id: responseJson.id,
             email: responseJson.email,
+            accessToken: responseJson.token,
           };
         } catch (error) {
           console.log("error", error);
@@ -49,16 +50,25 @@ export const NEXT_AUTH_CONFIG = {
       },
     }),
   ],
+  //what is user actually in next auth?
+  //it has acces to
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    // async jwt({ token, user, account, profile, isNewUser }) {
-    //   console.log(1, token, 2, user, 3, account, 4, profile, 5, isNewUser);
-    //   return token;
-    // },
+    async jwt({ token, user, account, profile, isNewUser }: any) {
+      // localStorage.setItem("token", token);
+      //we have to set the access token
+      if (user) {
+        token.id = user.id;
+        token.accessToken = user.accessToken;
+      }
+      return token;
+    },
     async session({ session, token, user }: any) {
       // console.log(1, session, 2, session.user);
       if (session && session.user) {
         session.user.id = token.sub;
+        session.accessToken = token.accessToken;
+        console.log("token", token);
       }
       return session;
     },

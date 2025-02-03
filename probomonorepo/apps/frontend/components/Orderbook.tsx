@@ -2,7 +2,6 @@
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { json } from "stream/consumers";
 
 /* 
 Questions about websocket:
@@ -46,7 +45,8 @@ interface totalBidQuantity {
   yes: number;
   no: number;
 }
-export default function Orderbook() {
+export default function Orderbook({ eventName }: { eventName: string }) {
+  const [orderEventName, setOrderEventName] = useState(eventName);
   const [socketConnection, setSocketConnection] = useState<WebSocket | null>(
     null
   );
@@ -75,12 +75,12 @@ export default function Orderbook() {
     socket.onmessage = (message) => {
       try {
         const data: orderbooktype = JSON.parse(message.data);
-        console.log(data);
+        console.log("inside onmessage 1", data, orderEventName);
         //change 1: replace with real game
-        const eventName = data["SAMPLE_STOCK"];
+        const eventName = data[orderEventName];
         //is empty object falsy ? no => object are always truthy
         if (eventName?.yes && eventName && eventName.no) {
-          console.log("inside if");
+          console.log("inside if 2");
           const yesPriceKeys = Object.keys(eventName.yes);
           const noPriceKeys = Object.keys(eventName.no);
           console.log("keys", yesPriceKeys, noPriceKeys);
@@ -97,7 +97,7 @@ export default function Orderbook() {
               });
               totalBidQuantity.yes += eventName.yes?.[key].total;
             }
-            console.log("inside for loop", yesOrderBookDataArray);
+            console.log("inside yes for loop", yesOrderBookDataArray);
             setYesOrderbookData(yesOrderBookDataArray);
           }
           for (let key of noPriceKeys) {
@@ -108,19 +108,20 @@ export default function Orderbook() {
               noOrderBookDataArray?.push({
                 [parsedKey]: eventName.no?.[key].total,
               });
-              totalBidQuantity.no = eventName.no?.[key].total;
+              totalBidQuantity.no += eventName.no?.[key].total;
             }
-            console.log("inside for loop", noOrderBookDataArray);
+            console.log("inside no for loop", noOrderBookDataArray);
           }
           setTotalBidsQuantity(totalBidQuantity);
           setNoOrderbookData(noOrderBookDataArray);
           console.log(totalBidQuantity);
         }
-
-        //what to do
-        //1. obtain keys
-        //2. get their total
-        //fill the orderbook
+        console.log(
+          "final data: noorderbookarray",
+          noOrderBookData,
+          "yesorderbookarray",
+          yesOrderBookData
+        );
       } catch (error) {
         console.log(error, "error parseing");
       }
@@ -134,81 +135,223 @@ export default function Orderbook() {
   }, []);
   //   will this fxn run every time on the message recieving but how ?
 
+  //this compone is aobut approach
+  // return (
+  //   <div className="flex flex-row gap-2 p-2 justify-between bg-white w-[600px] h-[400px] border rounded-md border-gray-300">
+  //     <table className="w-1/2 text-sm">
+  //       <thead className="">
+  //         <tr className="text-gray-500 border-b">
+  //           <th className="text-left p-2">PRICE</th>
+  //           <th className="text-right p-2">QTY AT YES</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody className="">
+  //         {yesOrderBookData?.map((el, index) => (
+  //           //using react frament as i can't use div here
+  //           <React.Fragment key={index}>
+  //             <tr className=" border-b " key={index}>
+  //               {/* td means table data used to represent cell */}
+  //               {Object.keys(el).map((key, i) => (
+  //                 <td
+  //                   // making key unique as, below ,also index has been to map
+  //                   key={`key-${i}`}
+  //                   className="w-1/5 text-left h-[40px] p-2 "
+  //                 >
+  //                   {key}
+  //                 </td>
+  //               ))}
+  //               {Object.values(el).map((value, i) => (
+  //                 <td
+  //                   key={`value-${i}`}
+  //                   className={`w-2/5 text-left h-[40px] p-2 `}
+  //                   style={{
+  //                     background: `${getBackGroundColor(totalBidsQuantity.yes, value, "yes")}`,
+  //                   }}
+  //                 >
+  //                   {value}
+  //                 </td>
+  //               ))}
+  //             </tr>
+  //           </React.Fragment>
+  //         ))}
+  //       </tbody>
+  //     </table>
+
+  //     <table className="w-1/2 text-sm">
+  //       <thead className="">
+  //         <tr className="text-gray-500 border-b">
+  //           <th className="text-left p-2">PRICE</th>
+  //           <th className="text-right p-2">QTY AT NO</th>
+  //         </tr>
+  //       </thead>
+  //       <tbody className="w-[200%] flex flex-col ">
+  //         {noOrderBookData?.map((el, index) => (
+  //           <tr className="w-full border-b h-[40px] " key={index}>
+  //             {/* td means table data used to represent cell */}
+  //             {Object.keys(el).map((key, i) => (
+  //               <td
+  //                 key={`value-${i}-z`}
+  //                 className="w-1/2 text-left h-[40px] p-2 "
+  //               >
+  //                 {key}
+  //               </td>
+  //             ))}
+  //             {Object.values(el).map((value, i) => (
+  //               <td
+  //                 key={`key-${i}-x`}
+  //                 className="w-1/2 text-left h-[40px] p-2 "
+  //                 style={{
+  //                   background: `${getBackGroundColor(totalBidsQuantity.no, value, "no")}`,
+  //                 }}
+  //               >
+  //                 {value}
+  //               </td>
+  //             ))}
+  //           </tr>
+  //         ))}
+  //       </tbody>
+  //     </table>
+  //   </div>
+  // );
   return (
-    <div className="flex flex-row gap-2 p-2 justify-between bg-white w-[600px] h-[400px] border rounded-md border-gray-300">
-      <table className="w-1/2 text-sm">
-        <thead className="">
-          <tr className="text-gray-500 border-b">
-            <th className="text-left p-2">PRICE</th>
-            <th className="text-right p-2">QTY AT YES</th>
-          </tr>
-        </thead>
-        <tbody className="">
-          {yesOrderBookData?.map((el, index) => (
-            //using react frament as i can't use div here
-            <React.Fragment key={index}>
-              <tr className=" border-b " key={index}>
-                {/* td means table data used to represent cell */}
+    <div className="w-full ">
+      <div className="flex flex-row gap-1   border-collapse">
+        <table className="min-w-sm flex-auto w-fit bg-white text-sm   text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr className="h-4">
+              <th scope="col" className="p-2 text-left">
+                Price
+              </th>
+              <th scope="col" className=" whitespace-nowrap text-right p-2">
+                QTY AT NO
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {yesOrderBookData?.map((el, index) => (
+              <tr
+                key={index}
+                className="h-4 bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+              >
                 {Object.keys(el).map((key, i) => (
-                  <td
-                    // making key unique as, below ,also index has been to map
-                    key={`key-${i}`}
-                    className="w-1/5 text-left h-[40px] p-2 "
+                  <th
+                    scope="row"
+                    key={`value-${i}`}
+                    className="w-1/5 text-left p-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"
                   >
                     {key}
-                  </td>
+                  </th>
                 ))}
-                {Object.values(el).map((value, i) => (
+                {Object.values(el).map((el, i) => (
                   <td
                     key={`value-${i}`}
-                    className={`w-2/5 text-left h-[40px] p-2 `}
+                    className="w-4/5 border text-right p-2"
                     style={{
-                      background: `${getBackGroundColor(totalBidsQuantity.yes, value, "yes")}`,
+                      background: `${getBackGroundColor(totalBidsQuantity.yes, el, "yes")}`,
                     }}
                   >
-                    {value}
+                    {el}
                   </td>
                 ))}
               </tr>
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
-
-      <table className="w-1/2 text-sm">
-        <thead className="">
-          <tr className="text-gray-500 border-b">
-            <th className="text-left p-2">PRICE</th>
-            <th className="text-right p-2">QTY AT NO</th>
+            ))}
+          </tbody>
+        </table>
+        <table className="min-w-sm flex-auto w-fit bg-white text-sm   text-gray-500 dark:text-gray-400">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr className="h-4">
+              <th scope="col" className="p-2 text-left">
+                Price
+              </th>
+              <th scope="col" className=" whitespace-nowrap text-right p-2">
+                QTY AT NO
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {noOrderBookData?.map((el, index) => (
+              <tr
+                key={index}
+                className="h-4 bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+              >
+                {Object.keys(el).map((key, i) => (
+                  <th
+                    scope="row"
+                    key={`value-${i}`}
+                    className="w-1/5 text-left p-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                  >
+                    {key}
+                  </th>
+                ))}
+                {Object.values(el).map((el, i) => (
+                  <td
+                    key={`value-${i}`}
+                    className="w-4/5 border text-right p-2"
+                    style={{
+                      background: `${getBackGroundColor(totalBidsQuantity.no, el, "no")}`,
+                    }}
+                  >
+                    {el}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+        <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+          <tr>
+            <th scope="col" className="px-6 py-3">
+              Product name
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Color
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Category
+            </th>
+            <th scope="col" className="px-6 py-3">
+              Price
+            </th>
           </tr>
         </thead>
-        <tbody className="w-[200%] flex flex-col ">
-          {noOrderBookData?.map((el, index) => (
-            <tr className="w-full border-b h-[40px] " key={index}>
-              {/* td means table data used to represent cell */}
-              {Object.keys(el).map((key, i) => (
-                <td
-                  key={`value-${i}-z`}
-                  className="w-1/2 text-left h-[40px] p-2 "
-                >
-                  {key}
-                </td>
-              ))}
-              {Object.values(el).map((value, i) => (
-                <td
-                  key={`key-${i}-x`}
-                  className="w-1/2 text-left h-[40px] p-2 "
-                  style={{
-                    background: `${getBackGroundColor(totalBidsQuantity.no, value, "no")}`,
-                  }}
-                >
-                  {value}
-                </td>
-              ))}
-            </tr>
-          ))}
+        <tbody>
+          <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+            <th
+              scope="row"
+              className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+            >
+              Apple MacBook Pro 17"
+            </th>
+            <td className="px-6 py-4">Silver</td>
+            <td className="px-6 py-4">Laptop</td>
+            <td className="px-6 py-4">$2999</td>
+          </tr>
+          <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
+            <th
+              scope="row"
+              className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+            >
+              Microsoft Surface Pro
+            </th>
+            <td className="px-6 py-4">White</td>
+            <td className="px-6 py-4">Laptop PC</td>
+            <td className="px-6 py-4">$1999</td>
+          </tr>
+          <tr className="bg-white dark:bg-gray-800">
+            <th
+              scope="row"
+              className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+            >
+              Magic Mouse 2
+            </th>
+            <td className="px-6 py-4">Black</td>
+            <td className="px-6 py-4">Accessories</td>
+            <td className="px-6 py-4">$99</td>
+          </tr>
         </tbody>
-      </table>
+      </table> */}
     </div>
   );
 }
@@ -230,6 +373,7 @@ function getBackGroundColor(
   part: number,
   type: "yes" | "no"
 ): string {
+  console.log("total", total, "part", part);
   const percentage = (part / total) * 100;
   const bgColor = `linear-gradient(to left, ${type === "yes" ? `rgba(137, 196, 244)` : `rgba(255, 0, 0, 0.6)`} ${percentage}%, white ${percentage}%)`;
   return bgColor;

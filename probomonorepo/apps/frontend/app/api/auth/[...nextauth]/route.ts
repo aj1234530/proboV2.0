@@ -13,4 +13,4 @@ export { handler as GET, handler as POST };
 
 //steps
 //1. give next auth access to all the routes
-//2. handler handler boiler plate and export as get and post
+//2. handler  boiler plate and export as get and post

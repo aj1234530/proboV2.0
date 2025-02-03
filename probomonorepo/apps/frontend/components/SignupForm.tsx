@@ -1,37 +1,27 @@
-import axios from "axios";
-import { redirect } from "next/navigation";
-export default async function SignupForm() {
-  async function signupAction(formData: FormData) {
-    "use server";
-    try {
-      const response = await axios.post(
-        `http://localhost:5001/api/v1/user/signup`,
-        {
-          username: formData.get("username"),
-          email: formData.get("email"),
-          password: formData.get("password"),
-        }
-      );
-      if (response.status === 200) {
-        console.log("signup successful");
-        //problem redirecting
-        // return {success:true, message: response}
-        // redirect("/"); why can't i use redirect directly here
-      }
-      redirect("/");
-    } catch (error) {
-      console.log(error);
-        
-      //   return{
-      //     success: false,
-      //     message: error
-      //   }
-    }
-  }
+"use client";
+// import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { signupAction } from "../functions/serveractions";
+import { useState } from "react";
 
+export default function SignupForm() {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (formData: FormData) => {
+    const response = await signupAction(formData);
+    console.log(response);
+    if (response?.error) {
+      setError("signup failed");
+    }
+    if (response?.success) {
+      router.push("/api/auth/signin");
+    }
+  };
   return (
     <div className="w-screen h-screen flex items-center justify-center">
-      <form action={signupAction} className=" w-sm">
+      {/* action attribute is here to send form data when submitted */}
+      <form action={handleSubmit} className=" w-sm">
         <div className="mb-5">
           <label
             htmlFor="username"
@@ -87,6 +77,7 @@ export default async function SignupForm() {
         >
           Submit
         </button>
+        {error && <div>Signup Failed</div>}
       </form>
     </div>
   );

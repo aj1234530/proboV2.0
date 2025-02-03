@@ -9,8 +9,11 @@ interface getOrderBookResponse {
   statusCode: string;
   orderbook: string;
 }
-//move above fxn to separte
-adminRouter.post("/create/event", (req: Request, res: Response) => {});
+//move above fxn to separte, add a event to the database and the orderbook
+adminRouter.post("/create/event", (req: Request, res: Response) => {
+
+});
+
 
 //this is public route i mistakenly wrote this here
 adminRouter.get("/get/orderbook", async (req: Request, res: Response) => {

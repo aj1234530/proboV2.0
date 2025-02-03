@@ -10,7 +10,15 @@ export const ORDERBOOK: ORDER_BOOK_TYPE = {
     yes: new Map<priceRange, ORDERDATA>(),
     no: new Map<priceRange, ORDERDATA>(),
   },
-  SAMPLE_STOCK2: {
+  SAMPLE_STOCK_2: {
+    yes: new Map<priceRange, ORDERDATA>(),
+    no: new Map<priceRange, ORDERDATA>(),
+  },
+  SAMPLE_STOCK_3: {
+    yes: new Map<priceRange, ORDERDATA>(),
+    no: new Map<priceRange, ORDERDATA>(),
+  },
+  SAMPLE_STOCK_4: {
     yes: new Map<priceRange, ORDERDATA>(),
     no: new Map<priceRange, ORDERDATA>(),
   },
@@ -19,17 +27,13 @@ export const ORDERBOOK: ORDER_BOOK_TYPE = {
 export const STOCK_BALANCES: STOCK_BALANCES_TYPE = {};
 
 export const INR_BALANCES: INR_BALANCES_TYPE = {
-  //hard code-for now
-  cm6kebwrb00003g9imp8xbixf: {
-    balance: 5000000,
-    locked: 0,
-  },
-  cm6keey8p00013g9i5qej4ov5: {
-    balance: 5000000,
-    locked: 0,
-  },
+  //admin is here for minting thing
   admin: {
     balance: 0,
+    locked: 0,
+  },
+  cm6p0vgnl00043g4cfoq2dgx1: {
+    balance: 10000000,
     locked: 0,
   },
 };

@@ -25,9 +25,11 @@ model User {
 }
 
 model Events {
-  id                    String   @id @default(cuid())
-  nameOfEvent           String
-  expiresOn             DateTime
+  id                    String    @id @default(cuid())
+  eventName             String //the which is in the orderbook
+  eventTitle            String
+  expiresOn             DateTime?
   usersParticipated     User[] //a events can have many users
   numberOfPeoplePlaying Int?
+  imageUrl              String    @default("https://probo.in/_next/image?url=https%3A%2F%2Fprobo.gumlet.io%2Fimage%2Fupload%2Fprobo_product_images%2FIMAGE_e75356f6-0648-4b8d-810b-a950e5feb23d.png&w=96&q=75")
 }

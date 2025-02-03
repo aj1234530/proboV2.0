@@ -1,10 +1,11 @@
 import Providers from "../providers/provider";
-import SignedInNavbar from "../../components/SignedInNavbar";
+import SignedInNavbar from "../../components/Navbar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <div className="w-screen min-h-screen bg-[#f5f5f5]">
+        {/* mx-auto centers the children */}
         <div className="max-w-[1440px] mx-auto ">
           <div className="w-full h-16">
             <SignedInNavbar balance="50" />

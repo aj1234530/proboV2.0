@@ -2,7 +2,8 @@ import express, { json, Request, Response, Router } from "express";
 import { redisClient } from "../services/redisClient.js";
 import { pubSubRedisClient } from "../services/redisClient.js";
 import { PrismaClient } from "@repo/db/client";
-import { authCheck } from "../middlewares/authCheck.js";
+import { authCheck, JWT_SECRET } from "../middlewares/authCheck.js";
+import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 const probotaskqueue = "probotaskqueue";
 const prisma = new PrismaClient();
@@ -27,6 +28,11 @@ userRouter.post("/recharge", authCheck, async (req: Request, res: Response) => {
   console.log(uniqueRequestId, typeof uniqueRequestId);
   const subChannel = `recharge${uniqueRequestId}`;
   //we should do it by the worker
+  console.log("userId", userId, "balancetoadd", balanceToAdd);
+  const recharging = await prisma.user.update({
+    where: { id: userId },
+    data: { balance: { increment: parseInt(balanceToAdd) } },
+  });
   try {
     await redisClient.lPush(
       "probotaskqueue",
@@ -45,7 +51,9 @@ userRouter.post("/recharge", authCheck, async (req: Request, res: Response) => {
     console.log("code is here 2");
 
     if (responseOnChannel.statusCode == "200") {
-      res.status(200).json({ message: "Balance Added" });
+      res
+        .status(200)
+        .json({ message: "Balance Added", newBalance: recharging.balance });
     } else {
       throw new Error();
     }
@@ -101,28 +109,29 @@ userRouter.post("/buy", authCheck,async(req: Request, res: Response) => {
     //expecting balance from frontend in paise
     const userId = req.userId;
     const uniqueRequestId = Date.now().toString();
-    
+    console.log('data',eventName,bidType,bidQuantity,price,userId,uniqueRequestId)
     try {
       //in frontend also if user has not suffice , button will be disabled
       const balance = await redisClient.hGet('INR_BALANCES',userId);
       //if the user is able the trade means , his balance has been update in redis memory - as /trade/..on any route balance will be loaded
       if(!balance ){
         res.status(400).json({message:"Can't get the balance info"})
+        console.log('no balance info',userId)
         return
       }
-      console.log('code is here 1',balance)
+      console.log('code is here 1:buy',balance)
 
       const parsedBalance:RedisUserBalance = JSON.parse(balance);
-      console.log('code is here 2',parsedBalance.balance)
+      console.log('code is here 2:buy',parsedBalance.balance)
       if(parsedBalance.balance  < price * bidQuantity){
-      console.log('code is here 3')
+      console.log('code is here 3:buy')
         res.status(400).json({message:"Insuffice Balance"})
         return
       }
       if( (price % 50 !==0 ||  50 > price || price >= 1000) || bidQuantity <= 0 ){
         console.log(price % 50 !==0,50 > price,price >= 1000)
         console.log(price,)
-        console.log('code is here 4, invalid price config')
+        console.log('code is here 4:buy, invalid price config')
         //returning a generic response because , user won't  see it, it is for some who hit our api directly
         res.status(400).json({message:"invalid configurations"})
         return
@@ -153,10 +162,14 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
       res.status(401).json({ message: "Invalid Password" });
       return;
     }
+    const token = await jwt.sign({ userId: user.id }, JWT_SECRET);
+    console.log("here in singin", token);
+    //we need to intialize the balance in local db to make sure user has the balance in in memory
     res.status(200).json({
       message: "Login Sucessful",
-      userId: user.id,
-      userEmail: user.email,
+      id: user.id,
+      email: user.email,
+      token: token,
     });
   } catch (error) {
     console.log(error);
@@ -211,6 +224,35 @@ userRouter.post("/exit", authCheck, async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+userRouter.get("/events", async (req: Request, res: Response) => {
+  try {
+    const events = await prisma.events.findMany();
+    res
+      .status(200)
+      .json({ message: "events fetched successfully", events: events });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error, message: "Internal Server Error" });
+  }
+});
+userRouter.get("/event/:id", async (req: Request, res: Response) => {
+  const eventId = req.params.id;
+  try {
+    const event = await prisma.events.findFirst({
+      where: { eventName: eventId },
+    });
+    if (!event) {
+      res.status(404).json({ message: "Event Not Found" });
+      return;
+    }
+    res
+      .status(200)
+      .json({ message: "events fetched successfully", event: event });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error, message: "Internal Server Error" });
   }
 });
 
