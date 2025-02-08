@@ -29,6 +29,7 @@ userRouter.post("/recharge", authCheck, async (req: Request, res: Response) => {
   const subChannel = `recharge${uniqueRequestId}`;
   //we should do it by the worker
   console.log("userId", userId, "balancetoadd", balanceToAdd);
+  //increasing in the db also, not figured out what is the sourse of t
   const recharging = await prisma.user.update({
     where: { id: userId },
     data: { balance: { increment: parseInt(balanceToAdd) } },
@@ -226,6 +227,7 @@ userRouter.post("/exit", authCheck, async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 userRouter.get("/events", async (req: Request, res: Response) => {
   try {
     const events = await prisma.events.findMany();
@@ -253,6 +255,19 @@ userRouter.get("/event/:id", async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error, message: "Internal Server Error" });
+  }
+});
+userRouter.get("/balance", authCheck, async (req: Request, res: Response) => {
+  const userId = req.userId;
+  console.log("code in get b 1:id", userId);
+  try {
+    const user = await prisma.user.findFirst({ where: { id: userId } });
+    res
+      .status(200)
+      .json({ message: "Balance fetched successfull", balance: user?.balance });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "we went into the error", error: error });
   }
 });
 

@@ -2,6 +2,8 @@
 
 import React from "react";
 import { useEffect, useState } from "react";
+import { useBalance } from "../app/providers/orderbookProvider";
+import { json } from "node:stream/consumers";
 
 /* 
 Questions about websocket:
@@ -50,6 +52,7 @@ export default function Orderbook({ eventName }: { eventName: string }) {
   const [socketConnection, setSocketConnection] = useState<WebSocket | null>(
     null
   );
+  const { userTrades, updateTrades } = useBalance();
 
   const [yesOrderBookData, setYesOrderbookData] = useState<
     orderBookData[] | null
@@ -74,8 +77,38 @@ export default function Orderbook({ eventName }: { eventName: string }) {
     };
     socket.onmessage = (message) => {
       try {
-        const data: orderbooktype = JSON.parse(message.data);
-        console.log("inside onmessage 1", data, orderEventName);
+        // console.log("inside onmessage 0", message.data, orderEventName);
+        const dataRecieved = JSON.parse(message.data);
+        console.log(
+          "inside onmessage 1,fulldata recieved:",
+          dataRecieved,
+          orderEventName
+        );
+        const data: orderbooktype = dataRecieved["orderbook"];
+
+        const stockBalance = dataRecieved["stockbalance"];
+        //now set this balance to the usestate
+        try {
+          localStorage.setItem("userTrades", JSON.stringify(stockBalance));
+          const userTradesFromLocalStorage = localStorage.getItem("userTrades");
+          //setting local and updating to the
+          if (userTradesFromLocalStorage) {
+            updateTrades(userTradesFromLocalStorage);
+          }
+          console.log(
+            "user trades setting",
+            userTrades,
+            JSON.stringify(stockBalance)
+          );
+        } catch (error) {}
+        updateTrades(JSON.stringify(data));
+        console.log(
+          "inside onmessage 2,orderbookdata",
+          data,
+          "stock balance:",
+          stockBalance
+        );
+
         //change 1: replace with real game
         const eventName = data[orderEventName];
         //is empty object falsy ? no => object are always truthy

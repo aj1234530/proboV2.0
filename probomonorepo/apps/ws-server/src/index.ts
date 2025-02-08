@@ -4,6 +4,7 @@ const connectedClients: Set<WebSocket> = new Set();
 const wss = new WebSocketServer({ port: 8080 });
 //lastOrderBookSent is for the initail connection to your websocke as ws server don't have the orderbook, so keep previoustored
 let lastOrderBookSent: string;
+
 wss.on("connection", function connection(ws, req) {
   connectedClients.add(ws);
   console.log(connectedClients.size);

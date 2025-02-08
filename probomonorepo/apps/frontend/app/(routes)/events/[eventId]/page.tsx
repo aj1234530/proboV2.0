@@ -3,7 +3,12 @@ import { notFound, redirect } from "next/navigation";
 import Orderbook from "../../../../components/Orderbook";
 import OrderCard from "../../../../components/OrderCard";
 
-export default async function ({ params }: { params: { eventId: string } }) {
+//params:Promise<{eventId:string}> measn that params is a promise which will resolve to an object with eventId key
+export default async function ({
+  params,
+}: {
+  params: Promise<{ eventId: string }>;
+}) {
   const { eventId } = await params;
   const session = await getServerSession();
   const url = `${process.env.NEXT_PUBLIC_API_URL_V1}/user/event/${eventId}`;

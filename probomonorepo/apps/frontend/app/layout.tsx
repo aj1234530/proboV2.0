@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Providers from "./providers/provider";
+import { BalanceProvider } from "./providers/orderbookProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -27,7 +28,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable}   bg-[#f5f5f5]`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <BalanceProvider>{children}</BalanceProvider>
+        </Providers>
       </body>
     </html>
   );

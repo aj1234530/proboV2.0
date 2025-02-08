@@ -37,7 +37,7 @@ export default async function () {
       <div className="h-full-[h-12]">
         <div className="flex flex-col items-center  gap-3">
           {dataRecieved &&
-            dataRecieved.events.map((el) => (
+            dataRecieved.events?.map((el) => (
               <div className="flex-1" key={el.id}>
                 <Link href={`/events/${el.eventName}`}>
                   <EventCard

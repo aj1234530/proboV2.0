@@ -2,13 +2,47 @@
 
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useEffect } from "react";
+import { useBalance } from "../app/providers/orderbookProvider";
 
-export default function SignedInNavbar({
-  balance = "0",
-}: {
-  balance?: string;
-}) {
-  const session = useSession();
+export default function SignedInNavbar({}: { balance?: string }) {
+  const session: any = useSession();
+  const { walletBalance, refreshBalance } = useBalance();
+  console.log(walletBalance);
+
+  // const url
+  // console.log("url hit at 1", url, "token sent", token, "session", session);
+  // useEffect()
+  // if (token) {
+  //   const response = await fetch(url, {
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   });
+  //   if (!response.ok) {
+  //     console.log("error getting the balance from the db 2");
+  //   }
+  //   if (response.status === 200) {
+  //     const dataRecieved = await response.json();
+  //     console.log(dataRecieved);
+  //   }
+  // // }
+  // useEffect(() => {
+  //     if (token) {
+  //   const response = await fetch(url, {
+  //     headers: {
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   });
+  //   if (!response.ok) {
+  //     console.log("error getting the balance from the db 2");
+  //   }
+  //   if (response.status === 200) {
+  //     const dataRecieved = await response.json();
+  //     console.log(dataRecieved);
+  //   }
+  // }
+  // }, [])
 
   return (
     <div className="bg-[#f5f5f5] h-16 border-b-1 border-gray-300  ">
@@ -49,15 +83,14 @@ export default function SignedInNavbar({
             </Link>
             <div className="flex flex-row gap-4 border border-gray-300 px-4 p-0 rounded-sm">
               <img src="https://d39axbyagw7ipf.cloudfront.net/icons/wallet.svg"></img>
-              <span>₹{balance}</span>
+              <span>₹{walletBalance}</span>
             </div>
             <img
               src="https://probo.in/_next/image?url=https%3A%2F%2Fprobo.gumlet.io%2Fimage%2Fupload%2Fprobo_product_images%2FSilhouette.png&w=48&q=75"
               className=" h-10 rounded-full"
             ></img>
-            <button className="hover:cursor-pointer" onClick={() => signOut()}>
-              Logout
-            </button>
+
+            <button onClick={() => signOut}>Logout</button>
           </div>
         ) : (
           <div className="flex flex-row gap-10 h-full items-center">

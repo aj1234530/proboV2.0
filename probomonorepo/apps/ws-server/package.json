@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@types/ws": "^8.5.14",
+    "nodemon": "^3.1.9",
     "ws": "^8.18.0"
   }
 }

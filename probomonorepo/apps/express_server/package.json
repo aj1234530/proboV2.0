@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --watch src --ext ts --exec 'tsc && node dist/index.js'"
+    "dev": "nodemon --watch src --ext ts --exec 'tsc && node dist/index.js'",
+    "build": "tsc -b"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
@@ -29,6 +30,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "nodemon": "^3.1.9",
     "redis": "^4.7.0",
     "ws": "^8.18.0"
   },

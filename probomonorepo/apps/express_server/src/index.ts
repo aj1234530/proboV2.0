@@ -13,7 +13,7 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.get("/ping", (req, res) => {
-  res.send("pong");
+  res.send("pong pong");
 });
 
 app.use("/api/v1/user", userRouter);

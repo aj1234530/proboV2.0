@@ -1,3 +1,4 @@
+console.log("inside worker's index.ts");
 import { pubSubRedisClient, redisClient } from "./services/redisClient.js";
 import { PrismaClient } from "@repo/db/client";
 import jwt from "jsonwebtoken";
@@ -301,7 +302,11 @@ const handleBuy = async (data: DataRecievedFromApiServer) => {
       serializeObject(INR_BALANCES)
     );
     console.log("code is here : above ORDERBOOK sending over ws");
-    wsClient.send(serializeObject(ORDERBOOK)); //sending type of msg also
+    const datatosend = serializeObject({
+      orderbook: ORDERBOOK,
+      stockbalance: STOCK_BALANCES,
+    });
+    wsClient.send(datatosend); //sending type of msg also
     return;
   }
   //LS -2 handling the case where we can match partial or all orders
