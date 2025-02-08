@@ -15,6 +15,6 @@ jobs:
         #${{github.sha}} is github action's environment variable that contains the commit hash, tagging with username
         run: docker build -f ./probomonorepo/docker/express_server/Dockerfile -t aj942/express_server:${{github.sha}} ./probomonorepo #building the docker image at monorepo root dir and using file at docker/express_server/Dockerfile
       - name: Log into DockerHub
-        run: docker login aj942 -p ${{ secrets.DOCKERHUB_TOKEN }}
+        run: docker login -u aj942 -p ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Push image to DockerHub
         run: docker push aj942/express_server:${{github.sha}}
