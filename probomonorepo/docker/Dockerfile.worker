@@ -16,10 +16,11 @@ WORKDIR /app/packages/db
 RUN pwd && ls -la
 
 RUN npx prisma generate
-
+WORKDIR /app/worker/src
+ENV WS_URL=$WS_URL
+ENV JWT_SECRET=$JWT_SECRET
 WORKDIR /app
 
 RUN pnpm build
 
-# change to production like start , s
 CMD [ "pnpm", "dev" ]

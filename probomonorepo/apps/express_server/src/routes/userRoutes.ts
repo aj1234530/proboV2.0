@@ -5,6 +5,7 @@ import { PrismaClient } from "@repo/db/client";
 import { authCheck, JWT_SECRET } from "../middlewares/authCheck.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { signupSchema } from "../libs/zod.js";
 const probotaskqueue = "probotaskqueue";
 const prisma = new PrismaClient();
 export const userRouter: Router = express.Router();
@@ -67,9 +68,11 @@ userRouter.post("/recharge", authCheck, async (req: Request, res: Response) => {
 userRouter.post("/withdraw", (req: Request, res: Response) => {});
 
 userRouter.post("/signup", async (req: Request, res: Response) => {
+  //zod validation
   const { username, email, password } = req.body;
   const uniqueRequestId = Date.now();
   try {
+    const xyz = signupSchema.parse({ username, email, password }); //parse if error , thrown in catch
     await redisClient.lPush(
       "probotaskqueue",
       JSON.stringify({
@@ -113,22 +116,22 @@ userRouter.post("/buy", authCheck,async(req: Request, res: Response) => {
     console.log('data',eventName,bidType,bidQuantity,price,userId,uniqueRequestId)
     try {
       //in frontend also if user has not suffice , button will be disabled
-      const balance = await redisClient.hGet('INR_BALANCES',userId);
+      // const balance = await redisClient.hGet('INR_BALANCES',userId);
       //if the user is able the trade means , his balance has been update in redis memory - as /trade/..on any route balance will be loaded
-      if(!balance ){
-        res.status(400).json({message:"Can't get the balance info"})
-        console.log('no balance info',userId)
-        return
-      }
-      console.log('code is here 1:buy',balance)
+      // if(!balance ){
+      //   res.status(400).json({message:"Can't get the balance info"})
+      //   console.log('no balance info',userId)
+      //   return
+      // }
+      // console.log('code is here 1:buy',balance)
 
-      const parsedBalance:RedisUserBalance = JSON.parse(balance);
-      console.log('code is here 2:buy',parsedBalance.balance)
-      if(parsedBalance.balance  < price * bidQuantity){
-      console.log('code is here 3:buy')
-        res.status(400).json({message:"Insuffice Balance"})
-        return
-      }
+      // const parsedBalance:RedisUserBalance = JSON.parse(balance);
+      // console.log('code is here 2:buy',parsedBalance.balance)
+      // if(parsedBalance.balance  < price * bidQuantity){
+      // console.log('code is here 3:buy')
+      //   res.status(400).json({message:"Insuffice Balance"})
+      //   return
+      // }
       if( (price % 50 !==0 ||  50 > price || price >= 1000) || bidQuantity <= 0 ){
         console.log(price % 50 !==0,50 > price,price >= 1000)
         console.log(price,)
@@ -274,14 +277,17 @@ userRouter.get("/balance", authCheck, async (req: Request, res: Response) => {
 //write a fxn that return a promise which resolves on the message or timeout after 30/specified sec
 //why this fxn is asycn? can't a sync return promise
 
+//what is new Keyword? - it is used to create new object from
+
 export function waitForMessageOnChannel(channel: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    //when the the channel receives the message the , cf executes and resolves
     //if not resolved under delay gives, promise is rejected
     //do we need to put await here before the pub
+
     pubSubRedisClient.subscribe(channel, (message) => {
+      //when the the channel receives the message the , cf executes and resolves
       resolve(message);
-      redisClient.unsubscribe; //unsub as
+      pubSubRedisClient.unsubscribe; //unsub as
     });
     setTimeout(() => {
       reject("Timed Out");

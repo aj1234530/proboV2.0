@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probomonorepo-deployment
+#  labels:
+#  apps: probomonorepo
+spec:
+  selector:
+    matchLabels:
+      app: probomonorepo
+  replicas: 3 #telling replica to run 3 pods matching the templaet
+
+  template:
+    metadata:
+      labels:
+        app: probomonorepo
+    spec:
+      containers:
+        - name: express-server #can't be underscore in name
+          image: aj042/express_server
+          imagePullPolicy: Never #this wasted my lot of time
+          ports:
+            - containerPort: 5001
+#  metadata:
+#  name:
+#  matchlabels

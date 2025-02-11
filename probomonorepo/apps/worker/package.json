@@ -18,8 +18,10 @@
   },
   "dependencies": {
     "@repo/db": "workspace:*",
+    "@types/dotenv": "^8.2.3",
     "@types/jsonwebtoken": "^9.0.8",
     "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
     "jsonwebtoken": "^9.0.2",
     "nodemon": "^3.1.9",
     "redis": "^4.7.0",

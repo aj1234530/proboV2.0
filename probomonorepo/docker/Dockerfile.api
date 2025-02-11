@@ -13,9 +13,16 @@ COPY packages ./packages
 COPY ./apps/express_server ./apps/express_server
 
 RUN pnpm i
-
+WORKDIR /app/apps/express_server
+ENV key=REDIS_URL
 WORKDIR /app/packages/db
+#arg is build time variable
+# ARG DATABASE_URL 
+# ENV key=DATABASE_URL
 RUN command pwd && ls -la
+
+# RUN npx prisma migrate dev - using neondb no need to re generate
+
 RUN npx prisma generate
 
 WORKDIR /app
@@ -24,5 +31,5 @@ RUN pnpm build
 
 EXPOSE 5001
 
-CMD ["pnpm", "dev"]
+CMD ["pnpm","dev"]
 # CMD [ "node", "index.js" ]

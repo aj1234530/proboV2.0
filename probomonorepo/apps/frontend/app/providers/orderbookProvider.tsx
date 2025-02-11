@@ -56,8 +56,12 @@ export function BalanceProvider({ children }: { children: ReactNode }) {
   };
   //fetch balance on mount
   useEffect(() => {
-    fetchBalance();
-  });
+    //only fetch the balace if the session has accesstoken , this ensure it does not fetch balance fxn does not access the if not init
+    if (session?.data?.accessToken) {
+      fetchBalance();
+    }
+  }, [session]); //depedency ensures if the session changes fetch the balance that is inital load the session might not be initialise so when initiale fetch the balace
+
   return (
     <BalanceContext.Provider
       value={{

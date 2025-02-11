@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: probomonorepo-deployment
+#  labels:
+#  apps: probomonorepo
+spec:
+  selector:
+    matchLabels:
+      app: probomonorepo
+  replicas: 3 #telling replica to run 3 pods matching the templaet
+  template:
+    metadata:
+      labels:
+        app: probomonorepo
+    spec:
+      containers:
+        - name: express-server #can't be underscore in name
+          image: aj942/express_server
+          imagePullPolicy: Always #forces k8 to pull the latest image
+          ports:
+            - containerPort: 5001
+
+        - name: frontend
+          image: aj942/frontend
+          imagePullPolicy: Always #forces k8 to pull the latest image
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXTAUTH_URL
+              value: http://frontend-service:3000
+            - name: NEXTAUTH_SECRET
+              value: password_nextauth
+            - name: NEXT_PUBLIC_API_URL
+              value: http://express-service:5001
+            - name: NEXT_PUBLIC_API_URL_V1
+              value: http://express-service:5001/api/v1
+
+        - name: ws
+          image: aj942/ws
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+
+        - name: worker
+          image: aj942/worker
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3001 #although we don' need port here
+          workingDir: /app/apps/worker/src
+          env:
+            - name: JWT_SECRET
+              value: password_nextauth
+            - name: WS_URL
+              value: ws://ws-service:8080

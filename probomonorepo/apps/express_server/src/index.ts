@@ -7,6 +7,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 dotenv.config();
+console.log(`${process.env.PORT} is the port from .env`);
 const PORT = process.env.PORT || 5001;
 const app = express();
 app.use(cors());

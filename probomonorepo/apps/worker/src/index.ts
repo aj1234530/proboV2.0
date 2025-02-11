@@ -1,4 +1,3 @@
-console.log("inside worker's index.ts");
 import { pubSubRedisClient, redisClient } from "./services/redisClient.js";
 import { PrismaClient } from "@repo/db/client";
 import jwt from "jsonwebtoken";
@@ -195,7 +194,7 @@ const handleRecharge = async (data: DataRecievedFromApiServer) => {
     );
   }
 };
-//this handler updates balance to redis
+//this handler updates balance to redis(not using now)
 const handleRecharge2 = async (data: DataRecievedFromApiServer) => {
   console.log("code is here 3:inside recharge");
   try {

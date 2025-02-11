@@ -41,11 +41,7 @@ export default function Portfolio() {
 
   return (
     <div>
-      <div className="w-full flex flex-row gap-3 font-light justify-center">
-        <div>Active trades</div>
-        <div>Closed trades</div>
-        <SellModal isOpen={isOpen} setIsOpen={setIsOpen} />
-      </div>
+      <div className="w-full flex flex-row gap-3 font-light justify-center"></div>
       {/* prettier-ignore */}
       {userStockBalance ? (
         <div>
@@ -100,7 +96,11 @@ export default function Portfolio() {
           ))}
         </div>
       ) : (
-        <p>Loading or No Data</p>
+        <div className="w-screen h-screen">
+          <div className="h-full flex items-center justify-center">
+            You don't have any active trade
+          </div>
+        </div>
       )}
     </div>
   );

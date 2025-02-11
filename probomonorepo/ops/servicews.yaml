@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ws-service
+spec:
+  selector: #slector used to match labels on resources, using a deployment
+    app: probomonorepo
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30012
+  type: NodePort

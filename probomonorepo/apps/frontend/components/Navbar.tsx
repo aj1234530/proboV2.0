@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useBalance } from "../app/providers/orderbookProvider";
 
+//name is lil confusing, strategy was change
 export default function SignedInNavbar({}: { balance?: string }) {
   const session: any = useSession();
   const { walletBalance, refreshBalance } = useBalance();
@@ -45,7 +46,7 @@ export default function SignedInNavbar({}: { balance?: string }) {
   // }, [])
 
   return (
-    <div className="bg-[#f5f5f5] h-16 border-b-1 border-gray-300  ">
+    <div className="bg-[#f5f5f5] h-[60px] border-b-1 border-gray-300  ">
       <div className="h-full flex flex-row justify-between items-center px-10">
         <div className="">
           <Link href="/">
@@ -90,14 +91,20 @@ export default function SignedInNavbar({}: { balance?: string }) {
               className=" h-10 rounded-full"
             ></img>
 
-            <button onClick={() => signOut}>Logout</button>
+            <button className="hover:cursor-pointer" onClick={() => signOut()}>
+              Logout
+            </button>
           </div>
         ) : (
           <div className="flex flex-row gap-10 h-full items-center">
-            <div className="flex flex-col flex-wrap">
-              <img src="https://d39axbyagw7ipf.cloudfront.net/icons/home.svg"></img>
-              <span>Home</span>
-            </div>
+            <Link href="/">
+              {" "}
+              <div className="flex flex-col flex-wrap">
+                <img src="https://d39axbyagw7ipf.cloudfront.net/icons/home.svg"></img>
+
+                <span>Home</span>
+              </div>
+            </Link>
 
             <Link href="/events">
               <div>Trade</div>

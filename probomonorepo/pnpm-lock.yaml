@@ -96,6 +96,9 @@ importers:
       ws:
         specifier: ^8.18.0
         version: 8.18.0
+      zod:
+        specifier: ^3.24.1
+        version: 3.24.1
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -188,12 +191,18 @@ importers:
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@types/dotenv':
+        specifier: ^8.2.3
+        version: 8.2.3
       '@types/jsonwebtoken':
         specifier: ^9.0.8
         version: 9.0.8
       bcrypt:
         specifier: ^5.1.1
         version: 5.1.1
+      dotenv:
+        specifier: ^16.4.7
+        version: 16.4.7
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.2
@@ -3519,6 +3528,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@3.24.1:
+    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
 
 snapshots:
 
@@ -7013,3 +7025,5 @@ snapshots:
   yn@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.24.1: {}

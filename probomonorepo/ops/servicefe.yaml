@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service #direct the traffic to pod(from outside or within clus)
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: probomonorepo # should match the matchlabel the
+  ports:
+    - protocol: TCP
+      port: 3000 #on this internal commun bw the containers eg - fronend and backend
+      targetPort: 3000 #actual port on which the app is running, eg backend for this service
+      nodePort: 30011 #exposed
+  type: NodePort

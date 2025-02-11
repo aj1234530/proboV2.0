@@ -1,0 +1,18 @@
+kind: Cluster
+name: probocluster1
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    #This is a cross-platform option to get traffic into your kind cluster
+    extraPortMappings:
+      - containerPort: 30010
+        hostPort: 30010
+      - containerPort: 30011
+        hostPort: 30011
+      - containerPort: 30012
+        hostPort: 30012
+      - containerPort: 30013
+        hostPort: 30013
+      - containerPort: 30014
+        hostPort: 30014
+  - role: worker

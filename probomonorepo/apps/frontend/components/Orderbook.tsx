@@ -67,7 +67,7 @@ export default function Orderbook({ eventName }: { eventName: string }) {
   });
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8080");
+    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WS_URL}`);
     setSocketConnection(socket);
     //even this useeffect runs only one time but the socket listens , event listeners has been attached to the conn
     //callback fxn of the event listeners runs

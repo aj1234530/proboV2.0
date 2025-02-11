@@ -5,6 +5,7 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json /app/
+COPY packages ./packages
 
 COPY apps/ws-server ./apps/ws-server
 

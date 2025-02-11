@@ -3,17 +3,23 @@ import { ToastContainer } from "react-toastify";
 import SignedInNavbar from "../../../components/Navbar";
 import { rechargeAction, signupAction } from "../../../functions/serveractions";
 import { triggerToast } from "../../../functions/toast";
+import { useState } from "react";
 
 export default function page() {
   //how i used server action
   //1. defined server action in the file and then
   //2. called the action from here
+  const [loading, setLoading] = useState(false);
   const handleRecharge = async (formData: FormData) => {
-    const balance = formData.get('balance')
+    setLoading(() => true);
+    console.log(loading);
+    const balance = formData.get("balance");
     const response = await rechargeAction(formData);
     if (response.success) {
+      setLoading(false);
       triggerToast("balance added ", "success");
     } else {
+      setLoading(false);
       triggerToast("balance was not added, something went wrong", "error");
     }
   };
@@ -43,6 +49,7 @@ export default function page() {
         >
           Proceed
         </button>
+        {loading && <div>Please Wait we are adding your balance</div>}
       </form>
       <ToastContainer />
     </div>

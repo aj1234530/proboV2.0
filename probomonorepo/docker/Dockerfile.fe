@@ -1,0 +1,41 @@
+# do next js app require nodealpine image
+FROM node:alpine
+RUN npm install -g pnpm
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml  pnpm-workspace.yaml turbo.json /app/
+
+COPY packages ./packages
+COPY ./apps/frontend ./apps/frontend
+
+RUN pnpm i
+
+WORKDIR /app/packages/db
+ARG DATABASE_URL
+ENV key=DATABASE_URL
+RUN command pwd && ls -la
+ARG DATABASE_URL
+RUN npx prisma generate
+
+WORKDIR /app/apps/frontend
+
+ARG NEXTAUTH_URL
+ARG NEXTAUTH_SECRET
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_API_URL_V1
+ARG NEXT_PUBLIC_WS_URL
+
+ENV NEXTAUTH_URL=$NEXTAUTH_URL
+ENV NEXTAUTH_SECRET=$NEXTAUTH_SECRET
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL_V1=$NEXT_PUBLIC_API_URL_V1
+ENV NEXT_PUBLIC_WS_URL=$NEXT_PUBLIC_WS_URL
+
+WORKDIR /app/
+RUN pnpm build
+
+EXPOSE 3000
+
+
+CMD [ "pnpm","dev" ]
+

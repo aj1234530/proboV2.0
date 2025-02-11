@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  backend:
+    image: aj942/worker
+    container_name: worker
+    working_dir: /app/apps/worker/
+    environment: 
+      - JWT_SECRET=password_nextauth
+      - WS_URL=ws://ws:8080  
+    networks:
+      - probonetwork
+    depends_on:
+      - ws  # Ensures backend starts after ws is up
+
+  ws:
+    image: aj942/ws
+    container_name: ws
+    ports:
+      - "8080:8080"
+    networks:
+      - probonetwork
+
+networks:
+  probonetwork:
+    driver: bridge  # Proper indentation
+
+ 

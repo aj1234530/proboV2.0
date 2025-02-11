@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service #direct the traffic to pod(from outside or within clus)
+metadata:
+  name: express-service
+spec:
+  selector:
+    app: probomonorepo # should match the matchlabel the
+  ports:
+    - protocol: TCP
+      port: 5001
+      targetPort: 5001 #actual port on which the app is running, eg backend for this service
+      nodePort: 30007 #exposed
+  type: NodePort
