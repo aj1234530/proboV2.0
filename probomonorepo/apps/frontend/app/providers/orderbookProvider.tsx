@@ -20,21 +20,24 @@ interface BalanceContext {
 const BalanceContext = createContext<BalanceContext | null>(null);
 //create provider compoment ?
 
-//what is a provider component?
+//2.what is a provider component?
 //provider compo provide data to the state - logic of data and getting data
 export function BalanceProvider({ children }: { children: ReactNode }) {
-  //1. balance
+  //2.1. balance
   const [walletBalance, setBalance] = useState(0);
   const [userTrades, setUserTrades] = useState<string | null>(null);
 
   const session: any = useSession();
 
-  //2.
+  //2.2
   const updateTrades = (data: string) => {
     setUserTrades(data);
   };
   const fetchBalance = async () => {
     try {
+      <div className="w-screen h-screen">
+        <div className="h-full flex items-center justify-center">Loading</div>
+      </div>;
       const url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/balance`;
       const response = await fetch(url, {
         headers: {

@@ -32,7 +32,7 @@ export const INR_BALANCES: INR_BALANCES_TYPE = {
     balance: 0,
     locked: 0,
   },
-  cm6p0vgnl00043g4cfoq2dgx1: {
+  cm6z366kn00013gabrsqkets4: {
     balance: 10000000,
     locked: 0,
   },

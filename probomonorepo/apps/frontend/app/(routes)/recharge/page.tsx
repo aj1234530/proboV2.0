@@ -24,9 +24,13 @@ export default function page() {
     }
   };
   return (
-    <div className="w-full h-full flex justify-center items-center ">
+    <div className=" h-full flex items-center justify-center ">
       {/* action attribute is here to send form data when submitted */}
-      <form action={handleRecharge} className=" w-sm">
+
+      <form
+        action={handleRecharge}
+        className=" w-sm h-50 border flex justify-between flex-col p-4 rounded"
+      >
         <div className="mb-5">
           <label
             htmlFor="enter amount"
@@ -51,6 +55,7 @@ export default function page() {
         </button>
         {loading && <div>Please Wait we are adding your balance</div>}
       </form>
+
       <ToastContainer />
     </div>
   );

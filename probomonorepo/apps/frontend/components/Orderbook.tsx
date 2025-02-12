@@ -256,7 +256,7 @@ export default function Orderbook({ eventName }: { eventName: string }) {
                 Price
               </th>
               <th scope="col" className=" whitespace-nowrap text-right p-2">
-                QTY AT NO
+                QTY AT YES
               </th>
             </tr>
           </thead>

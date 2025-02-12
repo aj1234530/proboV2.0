@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import { createClient, RedisClientType } from "redis";
+
 console.log("process.env.REDIS_URL", process.env.PORT, process.env.REDIS_URL);
 export const redisClient: RedisClientType = createClient({
   url: process.env.REDIS_URL,
@@ -33,4 +34,42 @@ async function connect() {
 }
 connect();
 
-//we need redis to send
+// changing logic to singleton pattern
+
+// fix any here - causing proble if giving redis client tyep
+// let redisClient: any = null;
+// let pubSubRedisClient: any = null;
+
+// const createRedisClient = () => {
+//   const client = createClient({
+//     url: process.env.REDIS_URL,
+//     socket: {
+//       reconnectStrategy: (retries) => {
+//         console.log(`Redis reconnect attempt ${retries}`);
+//         return Math.min(retries * 100, 5000);
+//       },
+//     },
+//   });
+
+//   client.on("error", (err) => console.error("Redis Client Error:", err));
+
+//   return client;
+// };
+
+// export const getRedisClient = () => {
+//   if (!redisClient) {
+//     redisClient = createRedisClient();
+//     redisClient.connect().then(() => console.log("Worker connected to Redis"));
+//   }
+//   return redisClient;
+// };
+
+// export const getPubSubRedisClient = () => {
+//   if (!pubSubRedisClient) {
+//     pubSubRedisClient = createRedisClient();
+//     pubSubRedisClient
+//       .connect()
+//       .then(() => console.log("Pub/Sub connected to Redis"));
+//   }
+//   return pubSubRedisClient;
+// };

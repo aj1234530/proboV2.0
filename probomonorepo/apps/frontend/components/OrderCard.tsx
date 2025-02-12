@@ -5,7 +5,7 @@ import { ToastContainer } from "react-toastify";
 import { triggerToast } from "../functions/toast";
 import { useState } from "react";
 export default function ({ eventName }: { eventName: string }) {
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState(0.5);
   const [buyEventName, setBuyEventName] = useState(eventName);
   const [quantity, setQuantity] = useState(0);
   const [bidType, setBidType] = useState<"yes" | "no">("yes");
@@ -40,6 +40,7 @@ export default function ({ eventName }: { eventName: string }) {
           eventName: buyEventName,
           bidQuantity: quantity,
           price: price * 100,
+          session:      session.data.accessToken
         },
         {
           headers: {

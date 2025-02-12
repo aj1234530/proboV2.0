@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import { redisClient } from "./services/redisClient.js";
+// import { redisClient } from "./services/redisClient.js";
+
 import { userRouter } from "./routes/userRoutes.js";
 import { adminRouter } from "./routes/adminRoutes.js";
 import cors from "cors";

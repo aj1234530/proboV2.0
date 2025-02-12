@@ -49,6 +49,9 @@ const processQueue = async () => {
       case "exit":
         console.log('case2.4: inside exit case');
         handleExitOrder(dataRecieved);
+      case "getStockBalance":
+        console.log('case2.5: inside get stock balace case');
+        handlegetStockBalance(dataRecieved);
     }
   }
 };
@@ -149,8 +152,12 @@ const handleUserSignup = async (data: DataRecievedFromApiServer) => {
     const token = await jwt.sign({ id: user.id }, JWT_SECRET, {
       expiresIn: "72h",
     });
-    //insert the user to the inr balance,if left side is right
-    INR_BALANCES[user.id] = INR_BALANCES[user.id] || { balance: 10, locked: 0 };
+    //insert the user to the inr balance,if left side is right, giving ten rupeed
+    //but remeber if worker restarts , inrbalance in the memory dne
+    INR_BALANCES[user.id] = INR_BALANCES[user.id] || {
+      balance: 1000,
+      locked: 0,
+    };
     console.log(INR_BALANCES);
     pubSubRedisClient.publish(
       `signupResponse${data.uniqueRequestId}`,
@@ -176,6 +183,10 @@ const handleRecharge = async (data: DataRecievedFromApiServer) => {
   console.log("inside rech fxn 1", userId, balanceToAdd);
   try {
     //inr balance increment or add
+    const recharging = await prisma.user.update({
+      where: { id: userId },
+      data: { balance: { increment: parseInt(balanceToAdd.toString()) } },
+    });
     INR_BALANCES[userId] = INR_BALANCES[userId] || { balance: 0, locked: 0 };
     INR_BALANCES[userId]["balance"] += balanceToAdd;
     console.log(
@@ -501,6 +512,22 @@ function mactchOrder(
     }
   }
   return remainingQuantity;
+}
+async function handlegetStockBalance(data: DataRecievedFromApiServer) {
+  try {
+    console.log("inside handleGetStockBalances fxn 1");
+    const dataToSend = JSON.stringify({
+      statusCode: "200",
+      stockbalance: serializeObject(STOCK_BALANCES),
+    });
+    await pubSubRedisClient.publish(
+      `getStockBalance${data.uniqueRequestId}`,
+      dataToSend
+    );
+    console.log("inside handleGetStockBalances fxn 2, executed");
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 processQueue();

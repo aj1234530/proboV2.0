@@ -40,7 +40,7 @@ export default async function Layout({
           <div className="w-full h-16">
             <SignedInNavbar />
           </div>
-          <div className="w-full h-[100%-62px] p-2">
+          <div className="w-full h-[calc(100vh-62px)] p-2">
             <Providers>{children}</Providers>
           </div>
         </div>

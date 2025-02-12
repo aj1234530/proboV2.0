@@ -2,6 +2,7 @@ import { createClient, RedisClientType } from "redis";
 import dotenv from "dotenv";
 dotenv.config();
 console.log(`'received url',${process.env.REDIS_URL}`, "logging ");
+
 export const redisClient: RedisClientType = createClient({
   url: process.env.REDIS_URL,
   //this is recoonetion strategy - added here after debugging if the db was not av it was not re trying
@@ -30,7 +31,9 @@ async function connect() {
 }
 connect();
 
-redisClient.on("error", (err) => console.log("Redis Client Error", err));
+redisClient.on("error", (err) => {
+  console.log("Redis Client Error", err);
+});
 redisClient.on("ready", () => {
   console.log("worker redis ready");
 });

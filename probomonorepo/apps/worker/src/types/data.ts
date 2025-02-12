@@ -1,7 +1,14 @@
 import { priceRange } from "./types.js";
 
 export interface DataRecievedFromApiServer {
-  taskType: "signup" | "buy" | "sell" | "recharge" | "getOrderBook" | "exit";
+  taskType:
+    | "signup"
+    | "buy"
+    | "sell"
+    | "recharge"
+    | "getOrderBook"
+    | "exit"
+    | "getStockBalance";
   userId: string; //for rech,buy,
   //signup
   username: string;

@@ -1,12 +1,24 @@
 import express, { json, Request, Response, Router } from "express";
 import { redisClient } from "../services/redisClient.js";
 import { pubSubRedisClient } from "../services/redisClient.js";
+// import {
+//   getRedisClient,
+//   getPubSubRedisClient,
+// } from "../services/redisClient.js";
+// const redisClient = getRedisClient();
+// const pubSubRedisClient = getPubSubRedisClient();
+// redisClient.on("ready", () => console.log("Worker Redis Ready"));
+// pubSubRedisClient.on("ready", () => console.log("Pub/Sub Redis Ready"));
 import { PrismaClient } from "@repo/db/client";
 import { authCheck, JWT_SECRET } from "../middlewares/authCheck.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { signupSchema } from "../libs/zod.js";
 const probotaskqueue = "probotaskqueue";
+interface getStockBalanceResponse {
+  statusCode: string;
+  stockbalance: string;
+}
 const prisma = new PrismaClient();
 export const userRouter: Router = express.Router();
 interface WorkerResponse_Signup {
@@ -28,13 +40,13 @@ userRouter.post("/recharge", authCheck, async (req: Request, res: Response) => {
   const uniqueRequestId = Date.now().toString(); //for comm
   console.log(uniqueRequestId, typeof uniqueRequestId);
   const subChannel = `recharge${uniqueRequestId}`;
-  //we should do it by the worker
   console.log("userId", userId, "balancetoadd", balanceToAdd);
-  //increasing in the db also, not figured out what is the sourse of t
-  const recharging = await prisma.user.update({
-    where: { id: userId },
-    data: { balance: { increment: parseInt(balanceToAdd) } },
-  });
+
+  ///worker will incr in db also, and in memeory
+  // const recharging = await prisma.user.update({
+  //   where: { id: userId },
+  //   data: { balance: { increment: parseInt(balanceToAdd) } },
+  // });
   try {
     await redisClient.lPush(
       "probotaskqueue",
@@ -53,9 +65,7 @@ userRouter.post("/recharge", authCheck, async (req: Request, res: Response) => {
     console.log("code is here 2");
 
     if (responseOnChannel.statusCode == "200") {
-      res
-        .status(200)
-        .json({ message: "Balance Added", newBalance: recharging.balance });
+      res.status(200).json({ message: "Balance Added" });
     } else {
       throw new Error();
     }
@@ -206,7 +216,10 @@ userRouter.post("/exit", authCheck, async (req: Request, res: Response) => {
   //for selling 1. should have stock of the event,
   //sale parice - data sanity,
   //add to order book simply nothing else and lock it
+  console.log("in sell route 1", req.body);
+
   const { eventName, bidType, bidQuantity, price } = req.body;
+  console.log(eventName, bidType, bidQuantity, price);
   if (!eventName || !bidType || !bidQuantity || !price) {
     res.status(500).json({ message: "all field manadaotry" });
     return;
@@ -224,6 +237,7 @@ userRouter.post("/exit", authCheck, async (req: Request, res: Response) => {
         taskType: "exit",
       })
     );
+    console.log("in sell route 2");
     res.status(200).json({ message: "Exit Order Placed" });
   } catch (error) {
     console.log(error);
@@ -274,6 +288,41 @@ userRouter.get("/balance", authCheck, async (req: Request, res: Response) => {
   }
 });
 
+userRouter.get("/stockbalance", async (req: Request, res: Response) => {
+  //but our worker has no websocket server it is connected via websocket only
+  //use quues and await on the pubsub
+  try {
+    const uniqueRequestId = Date.now().toString();
+    const subChannel = `getStockBalance${uniqueRequestId}`;
+    await redisClient.lPush(
+      "probotaskqueue",
+      JSON.stringify({
+        uniqueRequestId,
+        taskType: "getStockBalance",
+      })
+    );
+    console.log("code is here 1");
+
+    const responseOnChannel: getStockBalanceResponse = JSON.parse(
+      //if promise rejects it will throw error
+      await waitForMessageOnChannel(subChannel)
+    );
+
+    console.log("code is insed gob 2", responseOnChannel);
+
+    if (responseOnChannel.statusCode == "200") {
+      const stockbalance = JSON.parse(responseOnChannel.stockbalance);
+      res
+        .status(200)
+        .json({ message: "orderbook fetched ", stockbalance: stockbalance });
+    } else {
+      throw new Error();
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 //write a fxn that return a promise which resolves on the message or timeout after 30/specified sec
 //why this fxn is asycn? can't a sync return promise
 

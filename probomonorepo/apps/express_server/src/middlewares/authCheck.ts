@@ -4,11 +4,10 @@ export const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
 export const authCheck = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers["authorization"]?.split(" ")[1];
-
-  console.log(token);
+  // console.log("token receved", token);
   try {
     if (!token) {
-      console.log("here 1", token);
+      console.log("here 1");
       res.status(401).json({ message: " Unauthorised" });
       return;
     }

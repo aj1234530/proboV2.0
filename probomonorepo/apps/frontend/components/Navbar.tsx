@@ -86,11 +86,10 @@ export default function SignedInNavbar({}: { balance?: string }) {
               <img src="https://d39axbyagw7ipf.cloudfront.net/icons/wallet.svg"></img>
               <span>₹{walletBalance}</span>
             </div>
-            <img
+            {/* <img
               src="https://probo.in/_next/image?url=https%3A%2F%2Fprobo.gumlet.io%2Fimage%2Fupload%2Fprobo_product_images%2FSilhouette.png&w=48&q=75"
               className=" h-10 rounded-full"
-            ></img>
-
+            ></img> */}
             <button className="hover:cursor-pointer" onClick={() => signOut()}>
               Logout
             </button>

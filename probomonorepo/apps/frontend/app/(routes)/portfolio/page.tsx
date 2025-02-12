@@ -1,8 +1,9 @@
 "use client";
 
-import { Dispatch, SetStateAction, use, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useBalance } from "../../providers/orderbookProvider";
 import { useSession } from "next-auth/react";
+import ModalComponent from "../../../components/SellModal";
 
 interface UserStockBalance {
   [stockName: string]: {
@@ -12,9 +13,18 @@ interface UserStockBalance {
 }
 
 export default function Portfolio() {
+  // const { userTrades, updateTrades } = useBalance();not using now
+  //sell modal states
   const { userTrades, updateTrades } = useBalance();
-  const session: any = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const [sellOrderData, setSellOrderData] = useState({
+    availableQuantity: "",
+    eventName: "",
+    bidType: "",
+  });
+
+  const session: any = useSession();
+
   //   const {  session,data }:{session:any,data:any} = useSession();
   const [userStockBalance, setUserStockBalance] =
     useState<UserStockBalance | null>(null);
@@ -25,9 +35,13 @@ export default function Portfolio() {
     if (!userId) return;
 
     try {
+      console.log("userTrades", userTrades);
       const stocksData = localStorage.getItem("userTrades");
+      if (!stocksData) {
+        return;
+      }
       if (stocksData) {
-        const parsedStocksData = JSON.parse(stocksData);
+        const parsedStocksData = JSON?.parse(stocksData);
         console.log("Parsed Data:", parsedStocksData);
 
         if (parsedStocksData[userId]) {
@@ -75,12 +89,18 @@ export default function Portfolio() {
                         <div className="whitespace-nowrap">
                           Pending: {data.pending}
                         </div>
-                        <div className="whitespace-nowrap">
+                        {/* <div className="whitespace-nowrap">
                           Exited: {data.exited}
-                        </div>
+                        </div> */}
                         <button
                           id={`${stockName}`}
                           onClick={() => {
+                            setSellOrderData({
+                              ...sellOrderData,
+                              availableQuantity: data.quantity.toString(),
+                              eventName: stockName,
+                              bidType: yesNo,
+                            });
                             setIsOpen(true);
                           }}
                           className="bg-blue-700 text-white rounded  px-4 hover:cursor-pointer"
@@ -94,6 +114,15 @@ export default function Portfolio() {
               )}
             </div>
           ))}
+          <div>
+            <ModalComponent
+              availableQuantity={sellOrderData.availableQuantity}
+              eventName={sellOrderData.eventName}
+              bidType={sellOrderData.bidType}
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+            />
+          </div>
         </div>
       ) : (
         <div className="w-screen h-screen">

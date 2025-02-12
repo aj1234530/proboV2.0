@@ -15,7 +15,7 @@ export default async function ({
   console.log("url hit at", url);
   //redirect to root page if not signed in
   if (!session) {
-    redirect("/");
+    redirect("/api/auth/signin");
   }
   interface event {
     id: string;
