@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 
 export default function ModalComponent({
   isOpen,
+
   setIsOpen,
   bidType,
   eventName,
@@ -14,6 +15,7 @@ export default function ModalComponent({
 }: {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
+
   eventName: string;
   availableQuantity: string;
   bidType: string;
@@ -33,7 +35,7 @@ export default function ModalComponent({
     const url = `${process.env.NEXT_PUBLIC_API_URL_V1}/user/exit`;
     console.log("sell url 2 @", url);
 
-    if (!(availableQuantity < formData.bidQuantity)) {
+    if (availableQuantity < formData.bidQuantity) {
       alert("enter less than  available quantity");
       return;
     }
@@ -44,7 +46,7 @@ export default function ModalComponent({
         bidType: bidType,
         bidQuantity: formData.bidQuantity,
         availableQuantity: availableQuantity,
-        price: parseInt(formData.price) * 100, //sending in cents
+        price: parseFloat(formData.price) * 100, //sending in cents
       };
       console.log("data sent 3", dataToSend, session.data.accessToken);
 
@@ -54,7 +56,7 @@ export default function ModalComponent({
           eventName: eventName,
           bidType: bidType,
           bidQuantity: formData.bidQuantity,
-          price: parseInt(formData.price) * 100,
+          price: parseFloat(formData.price) * 100,
         },
         {
           headers: {
@@ -98,6 +100,7 @@ export default function ModalComponent({
               }
               className="w-full p-2 border rounded-md mb-3"
             >
+              {/* googled it for clean syntax */}
               {Array.from({ length: 19 }, (_, i) => (i + 1) * 0.5).map(
                 (value) => (
                   <option key={value} value={value}>

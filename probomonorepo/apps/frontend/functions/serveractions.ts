@@ -82,13 +82,32 @@ export const rechargeAction = async (
   if (!response.ok) {
     const responseJson = await response.json();
     return {
-      error: "signup failed",
+      error: "Recharge failed",
     };
   }
   return {
-    success: "Signup Success",
+    success: "Recharge Success",
   };
 };
 
+export const getStockBalance = async () => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/stockbalance`;
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (response.ok) {
+    const responseJson = await response.json();
+    return {
+      responseJson, //shorthand
+      success: "Stock Balance Fetched",
+    };
+  }
+  return {
+    error: "Stock balance was not fetched",
+  };
+};
 //in server ,next js does not send cookies automatically
 //

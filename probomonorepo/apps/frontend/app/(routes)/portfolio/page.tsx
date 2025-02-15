@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useBalance } from "../../providers/orderbookProvider";
 import { useSession } from "next-auth/react";
 import ModalComponent from "../../../components/SellModal";
+import { getStockBalance } from "../../../functions/serveractions";
 
 interface UserStockBalance {
   [stockName: string]: {
@@ -11,12 +12,12 @@ interface UserStockBalance {
     no: { quantity: number; locked: number; pending: number; exited: number };
   };
 }
-
 export default function Portfolio() {
   // const { userTrades, updateTrades } = useBalance();not using now
   //sell modal states
   const { userTrades, updateTrades } = useBalance();
   const [isOpen, setIsOpen] = useState(false);
+  const [update, setUpdate] = useState(false);
   const [sellOrderData, setSellOrderData] = useState({
     availableQuantity: "",
     eventName: "",
@@ -28,30 +29,38 @@ export default function Portfolio() {
   //   const {  session,data }:{session:any,data:any} = useSession();
   const [userStockBalance, setUserStockBalance] =
     useState<UserStockBalance | null>(null);
+  console.log("user stock balance", userStockBalance);
   const userId = session.data?.user.id;
   console.log("session", session, "userId,", userId);
 
+  const fetchStockBalance = async () => {
+    const response = await getStockBalance();
+    if (response.success) {
+      const stockBalances = response.responseJson?.stockbalance; //have to look if it is json
+      if (stockBalances[userId]) {
+        setUserStockBalance(stockBalances[userId]);
+      }
+      console.log(
+        "response for balcnce fetching",
+        response.responseJson,
+        userId,
+        response.responseJson.stockbalance,
+        response.responseJson.stockbalance[userId]
+      );
+    }
+    if (response.error) {
+      console.log("error", response.error);
+    }
+  };
   useEffect(() => {
-    if (!userId) return;
-
+    if (session?.data?.accessToken) {
+      fetchStockBalance();
+    }
     try {
-      console.log("userTrades", userTrades);
-      const stocksData = localStorage.getItem("userTrades");
-      if (!stocksData) {
-        return;
-      }
-      if (stocksData) {
-        const parsedStocksData = JSON?.parse(stocksData);
-        console.log("Parsed Data:", parsedStocksData);
-
-        if (parsedStocksData[userId]) {
-          setUserStockBalance(parsedStocksData[userId]);
-        }
-      }
     } catch (error) {
       console.error("Error parsing localStorage data:", error);
     }
-  }, [userId]); // Runs only when userId is available
+  }, [session]); // Runs only when userId is available
 
   return (
     <div>
@@ -89,9 +98,9 @@ export default function Portfolio() {
                         <div className="whitespace-nowrap">
                           Pending: {data.pending}
                         </div>
-                        {/* <div className="whitespace-nowrap">
+                        <div className="whitespace-nowrap">
                           Exited: {data.exited}
-                        </div> */}
+                        </div>
                         <button
                           id={`${stockName}`}
                           onClick={() => {
@@ -161,3 +170,12 @@ function SellModal({
 //on every trade i am setting the stock balance in localstorage and then - in orderbook page
 //on portfolio page - give the userTrades state of that data to make reactive if teh data changes
 //and then parsing all to show the order
+
+// function isValidJson(str:string){
+//   try {
+//     JSON.parse(str)
+//     return true
+//   } catch (error) {
+//       return false;
+//   }
+// }

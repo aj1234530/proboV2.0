@@ -531,22 +531,3 @@ async function handlegetStockBalance(data: DataRecievedFromApiServer) {
 }
 
 processQueue();
-
-/*faults in buy algorith
-1. on minting you have to add the stock the user account and list the opp for sell 
-but there will admin entry
-
-but sell hoga to paisa kha jayega - it will go to probo as 
-jitne wale ko to paisa badhakar  dena hai 
-
-*/
-
-var x = 0;
-
-/*
-DEFINITIONS of Functions descrisbed above:
-1. 
-
-
-
-*/

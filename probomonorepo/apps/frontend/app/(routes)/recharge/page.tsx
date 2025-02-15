@@ -3,16 +3,19 @@ import { ToastContainer } from "react-toastify";
 import SignedInNavbar from "../../../components/Navbar";
 import { rechargeAction, signupAction } from "../../../functions/serveractions";
 import { triggerToast } from "../../../functions/toast";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 
 export default function page() {
   //how i used server action
   //1. defined server action in the file and then
   //2. called the action from here
   const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    console.log(loading);
+  }, [loading]);
   const handleRecharge = async (formData: FormData) => {
     setLoading(() => true);
-    console.log(loading);
+
     const balance = formData.get("balance");
     const response = await rechargeAction(formData);
     if (response.success) {
