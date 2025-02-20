@@ -2,8 +2,11 @@ import { Button } from "@repo/ui/button";
 import Navbar from "../../components/Navbar";
 import { getServerSession } from "next-auth";
 import { NEXT_AUTH_CONFIG } from ".././lib/auth";
+
 import { signOut } from "next-auth/react";
 import Herosection from "../../components/Herosection";
+import MidSection from "../../components/landing/MidSection";
+import Footer from "../../components/landing/Footer";
 export default async function Page() {
   //we need to pass the config to access id of token on server componets
   const session = await getServerSession(NEXT_AUTH_CONFIG);
@@ -16,9 +19,11 @@ export default async function Page() {
     }
   );
   return (
-    <div className="max-w-screen-xl mx-auto">
+    <div className="max-w-screen-xxl mx-auto">
       <main>
         <Herosection></Herosection>
+        <MidSection></MidSection>
+        <Footer></Footer>
       </main>
     </div>
   );
