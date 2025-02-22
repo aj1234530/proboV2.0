@@ -8,6 +8,14 @@ import Herosection from "../../components/Herosection";
 import MidSection from "../../components/landing/MidSection";
 import Footer from "../../components/landing/Footer";
 export default async function Page() {
+  console.log(
+    "env recieved",
+    process.env.NEXTAUTH_URL,
+    process.env.NEXT_PUBLIC_API_URL,
+    process.env.NEXT_PUBLIC_API_URL_V1,
+    process.env.NEXT_PUBLIC_WS_URL,
+    process.env.NEXTAUTH_SECRET
+  );
   //we need to pass the config to access id of token on server componets
   const session = await getServerSession(NEXT_AUTH_CONFIG);
 
